@@ -1,0 +1,26 @@
+---
+- hosts: VPS
+  remote_user: root
+    
+  tasks:
+  - name: APT-GET UPDATE
+    apt: update_cache=yes cache_valid_time=7200
+  - name: Installation Tools
+    apt: name={{item}} state=present
+    with_items:
+      - htop
+      - vim
+      - ufw
+      - rkhunter
+      - fail2ban
+      - mutt
+      - logwatch
+      - logrotate
+      - openvpn
+      - portsentry
+      
+  - name: User Account Creation
+    user: name=$(user) comment=$(user) shell=/bin/bash createhome=yes
+
+  - name : Download OpenVpn-install
+    get_url: url=https://raw.githubusercontent.com/Nyr/openvpn-install/master/openvpn-install.sh dest=/root mode=0744
