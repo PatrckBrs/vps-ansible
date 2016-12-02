@@ -1,0 +1,39 @@
+---
+- hosts: VPS
+  remote_user: myUser
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: APT-GET UPDATE
+    apt: update_cache=yes cache_valid_time=7200 upgrade=dist
+    become_method: sudo
+
+  - name: Installation Tools
+    apt: name={{item}} state=present
+    with_items:
+      - htop
+      - vim
+      - ufw
+      - rkhunter
+      - fail2ban
+      - mutt
+      - logwatch
+      - logrotate
+      - openvpn
+      - sudo
+      - portsentry
+    become_method: sudo
+
+  - replace:
+      dest: /etc/ssh/sshd_config
+      regexp: 'PermitRootLogin yes'
+      replace: 'PermitRootLogin no'
+      owner: root
+      group: root
+      mode: 0644
+      backup: yes
+    become_method: sudo
+
+  - service: name=sshd  state=restarted enabled=yes
+    become_method: sudo
