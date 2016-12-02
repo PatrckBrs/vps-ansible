@@ -1,0 +1,35 @@
+---
+- hosts: VPS
+  remote_user: root
+
+# Use mkpasswd --method=sha-512 to generate your password and copy paste this one after password_myuser: 
+  vars:
+    password_myuser: 
+    
+  tasks:
+  - name: APT-GET UPDATE
+    apt: update_cache=yes cache_valid_time=7200 upgrade=dist
+
+  - name: Installation Tools
+    apt: name={{item}} state=present
+    with_items:
+      - htop
+      - vim
+      - ufw
+      - rkhunter
+      - fail2ban
+      - mutt
+      - logwatch
+      - logrotate
+      - openvpn
+      - portsentry
+      - sudo
+
+  - name: User Account Creation
+    user: name=MyUSER comment=MyUser shell=/bin/bash createhome=yes groups=sudo
+    
+  - name: Change Password Account
+    user: name=MyUser password={{password_myuser}} state=present
+
+  - name: Download OpenVpn-install
+    get_url: url=https://raw.githubusercontent.com/Nyr/openvpn-install/master/openvpn-install.sh dest=/root mode=0744
